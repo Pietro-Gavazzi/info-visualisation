@@ -90,7 +90,12 @@ print(similarity_df)
 
 #selec part of scatter_df where Category is Blurry
 Category = scatter_df['Category']
-print(Category)
+#print(Category)
+
+
+embedding_values = buffalo_l_embed.values.flatten()
+
+
 
 
 
@@ -123,6 +128,14 @@ app.layout = html.Div([
             title="Blurry vs Non-Blurry Projections",
             labels={'x': 'Projection X', 'y': 'Projection Y'}
         )
+    ),
+    html.H2("embeddings"),
+    dcc.Graph(
+        figure= px.histogram(
+            embedding_values, nbins=50, 
+            title="Distribution of Embedding Values",
+            labels={'value': 'Embedding Value', 'count': 'Frequency'}
+        )     
     )
 
     #,html.H2("Proj blurry"),
