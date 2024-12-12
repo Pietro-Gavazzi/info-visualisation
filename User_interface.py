@@ -4,8 +4,10 @@ from dash import Dash, html, dcc
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load data
 buffalo_s = pd.read_csv("celeba_buffalo_s.csv")
@@ -86,7 +88,7 @@ for i, label1 in enumerate(label_names):
         similarities.append((label1, label2, sim))
 
 similarity_df = pd.DataFrame(similarities, columns=['Label1', 'Label2', 'Cosine Similarity'])
-print(similarity_df)
+#print(similarity_df)
 
 #selec part of scatter_df where Category is Blurry
 Category = scatter_df['Category']
@@ -94,6 +96,45 @@ Category = scatter_df['Category']
 
 
 embedding_values = buffalo_l_embed.values.flatten()
+
+
+# t-SNE visualization
+
+tsne = TSNE(n_components=2, random_state=0)
+tsne_results = tsne.fit_transform(buffalo_l_embed)
+buffalo_l_embeded = pd.DataFrame({
+    'tsne-2d-one': tsne_results[:, 0],
+    'tsne-2d-two': tsne_results[:, 1],
+    'Category': buffalo_l_label['Blurry'].replace({1: 'Blurry', -1: 'Non-Blurry'})
+})
+
+tsne_fig = px.scatter(
+    buffalo_l_embeded, x='tsne-2d-one', y='tsne-2d-two', color='Category',
+    title="t-SNE Projection of Embeddings",
+    labels={'tsne-2d-one': 't-SNE X', 'tsne-2d-two': 't-SNE Y'}
+)
+tsne_fig.update_traces(marker=dict(size=6, opacity=0.6))
+
+tsne_fig_list=[]
+perplexity = [5,100,200,500,1000]
+for i in range(len(perplexity)):
+    tsne = TSNE(n_components=2, random_state=0, perplexity=perplexity[i])
+    tsne_results = tsne.fit_transform(buffalo_l_embed)
+    buffalo_l_embeded = pd.DataFrame({
+        'tsne-2d-one': tsne_results[:, 0],
+        'tsne-2d-two': tsne_results[:, 1],
+        'Category': buffalo_l_label['Blurry'].replace({1: 'Blurry', -1: 'Non-Blurry'})
+    })
+
+    tsne_fig_list.append(px.scatter(
+    buffalo_l_embeded, x='tsne-2d-one', y='tsne-2d-two', color='Category',
+    title="t-SNE Projection of Embeddings",
+    labels={'tsne-2d-one': 't-SNE X', 'tsne-2d-two': 't-SNE Y'}
+    ))
+    tsne_fig_list[i].update_traces(marker=dict(size=6, opacity=0.6))
+       
+
+
 
 
 
@@ -136,7 +177,30 @@ app.layout = html.Div([
             title="Distribution of Embedding Values",
             labels={'value': 'Embedding Value', 'count': 'Frequency'}
         )     
-    )
+    ),
+    html.H2("t-SNE Projection of Embeddings"),
+    dcc.Graph(
+        figure=tsne_fig
+    ),
+    
+    html.H2("t-SNE Projection of Embeddings with different perplexity"),
+    dcc.Graph(
+        figure=tsne_fig_list[0]
+    ),
+    dcc.Graph(
+        figure=tsne_fig_list[1]
+    ),
+    dcc.Graph(
+        figure=tsne_fig_list[2]
+    ),
+    dcc.Graph(
+        figure=tsne_fig_list[3]
+    ),
+    dcc.Graph(
+        figure=tsne_fig_list[4]
+    ),
+    
+    
 
     #,html.H2("Proj blurry"),
     #dcc.Graph(
