@@ -6,8 +6,13 @@ import plotly.graph_objects as go
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.decomposition import PCA
+import umap
 
 # Load data
 buffalo_s = pd.read_csv("celeba_buffalo_s.csv")
@@ -28,6 +33,11 @@ buffalo_l_label
 np.sum(np.sum(buffalo_l_embed.isna()))
 
 buffalo_l_embed
+
+#Simplify the dataset by summimg up the embeddings
+buffalo_l_embed_simple = buffalo_l_embed.groupby('id').sum()
+buffalo_l_label_simple = buffalo_l_label.groupby('id').sum()
+
 
 
 # Check for NaNs
@@ -116,7 +126,7 @@ tsne_fig = px.scatter(
 tsne_fig.update_traces(marker=dict(size=6, opacity=0.6))
 
 tsne_fig_list=[]
-perplexity = [5,100,200,500,1000]
+perplexity = [5,30,1000]
 for i in range(len(perplexity)):
     tsne = TSNE(n_components=2, random_state=0, perplexity=perplexity[i])
     tsne_results = tsne.fit_transform(buffalo_l_embed)
@@ -133,6 +143,75 @@ for i in range(len(perplexity)):
     ))
     tsne_fig_list[i].update_traces(marker=dict(size=6, opacity=0.6))
        
+# Create bar plot of label occurrences
+label_occurrences = buffalo_l_label.drop(columns=["image_name", "id"]).sum()#+len(buffalo_l_label)
+label_occurrences_fig = px.bar(
+    x=label_occurrences.index, y=label_occurrences.values,
+    title="Occurrences of Each Label in Dataset",
+    labels={'x': 'Label', 'y': 'Number of Occurrences'}
+)
+label_occurrences_fig.update_traces(marker_color='purple')
+
+
+
+# Implement K-Means
+kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans_labels = kmeans.fit_predict(buffalo_l_embed)
+
+kmeans_fig = px.scatter(
+    x=tsne_results[:, 0], y=tsne_results[:, 1], color=kmeans_labels.astype(str),
+    title="K-Means Clustering Visualization",
+    labels={'x': 't-SNE X', 'y': 't-SNE Y', 'color': 'Cluster'}
+)
+kmeans_fig.update_traces(marker=dict(size=6, opacity=0.6))
+
+# Implement Hierarchical Clustering
+linkage_matrix = linkage(buffalo_l_embed.sample(n=500, random_state=42), method='ward')
+plt.figure(figsize=(10, 7))
+dendrogram(linkage_matrix)
+plt.title("Hierarchical Clustering Dendrogram")
+plt.xlabel("Sample Index")
+plt.ylabel("Distance")
+hierarchical_fig = plt.gcf()
+plt.close()
+
+# Implement DBSCAN
+dbscan = DBSCAN(eps=3, min_samples=5)
+dbscan_labels = dbscan.fit_predict(buffalo_l_embed)
+
+dbscan_fig = px.scatter(
+    x=tsne_results[:, 0], y=tsne_results[:, 1], color=dbscan_labels.astype(str),
+    title="DBSCAN Clustering Visualization",
+    labels={'x': 't-SNE X', 'y': 't-SNE Y', 'color': 'Cluster'}
+)
+dbscan_fig.update_traces(marker=dict(size=6, opacity=0.6))
+
+
+# Linear DR: PCA
+pca = PCA(n_components=2, random_state=0)
+pca_results = pca.fit_transform(buffalo_l_embed)
+
+pca_fig = px.scatter(
+    x=pca_results[:, 0], y=pca_results[:, 1],
+    color=buffalo_l_label['Blurry'].replace({1: 'Blurry', -1: 'Non-Blurry'}),
+    title="PCA Projection of Embeddings",
+    labels={'x': 'PCA Component 1', 'y': 'PCA Component 2'}
+)
+pca_fig.update_traces(marker=dict(size=6, opacity=0.6))
+
+# Non-linear DR: UMAP
+umap_reducer = umap.UMAP(n_components=2, random_state=42)
+umap_results = umap_reducer.fit_transform(buffalo_l_embed)
+
+umap_fig = px.scatter(
+    x=umap_results[:, 0], y=umap_results[:, 1],
+    color=buffalo_l_label['Blurry'].replace({1: 'Blurry', -1: 'Non-Blurry'}),
+    title="UMAP Projection of Embeddings",
+    labels={'x': 'UMAP Dimension 1', 'y': 'UMAP Dimension 2'}
+)
+umap_fig.update_traces(marker=dict(size=6, opacity=0.6))
+
+
 
 
 
@@ -158,7 +237,7 @@ app.layout = html.Div([
     dcc.Graph(
         figure=px.scatter(
             scatter_df_blurry, x='x', y='y', color='Category',
-            title="Blurry vs Non-Blurry Projections",
+            title="Blurry Projections",
             labels={'x': 'Projection X', 'y': 'Projection Y'}
         )
     ),
@@ -166,7 +245,7 @@ app.layout = html.Div([
     dcc.Graph(
         figure=px.scatter(
             scatter_df_non_blurry, x='x', y='y', color_discrete_sequence=['red'],
-            title="Blurry vs Non-Blurry Projections",
+            title="Non-Blurry Projections",
             labels={'x': 'Projection X', 'y': 'Projection Y'}
         )
     ),
@@ -193,12 +272,38 @@ app.layout = html.Div([
     dcc.Graph(
         figure=tsne_fig_list[2]
     ),
+
+    html.H2("Occurrences of Each Label in Dataset"),
     dcc.Graph(
-        figure=tsne_fig_list[3]
+        figure=label_occurrences_fig
     ),
+
+    html.H2("K-Means Clustering"),
     dcc.Graph(
-        figure=tsne_fig_list[4]
+        figure=kmeans_fig
     ),
+
+    html.H2("Hierarchical Clustering Dendrogram"),
+    html.Div(
+        children=dcc.Graph(figure=go.Figure(data=[])),  # Placeholder for dendrogram image
+        style={"textAlign": "center"}
+    ),
+
+    html.H2("DBSCAN Clustering"),
+    dcc.Graph(
+        figure=dbscan_fig
+    ),
+
+    html.H2("PCA Projection of Embeddings"),
+    dcc.Graph(
+        figure=pca_fig
+    ),
+
+    html.H2("UMAP Projection of Embeddings"),
+    dcc.Graph(
+        figure=umap_fig
+    )
+   
     
     
 
