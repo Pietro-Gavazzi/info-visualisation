@@ -26,8 +26,14 @@ buffalo_s_filtered = buffalo_s[buffalo_s['image_name'].isin(common_image_names)]
 buffalo_l_filtered = buffalo_l[buffalo_l['image_name'].isin(common_image_names)]
 
 # order the data by image_name
-buffalo_s_filtered = buffalo_s_filtered.sort_values(by='image_name')
-buffalo_l_filtered = buffalo_l_filtered.sort_values(by='image_name')
+buffalo_s_filtered = buffalo_s_filtered.sort_values(by=['id', 'image_name'])
+buffalo_l_filtered = buffalo_l_filtered.sort_values(by=['id', 'image_name'])
+
+# Reorder columns to make 'id' the first column
+buffalo_s_filtered = buffalo_s_filtered[['id'] + [col for col in buffalo_s_filtered.columns if col != 'id']]
+buffalo_l_filtered = buffalo_l_filtered[['id'] + [col for col in buffalo_l_filtered.columns if col != 'id']]
+
+
 
 #save the filtered data
 buffalo_s_filtered.to_csv("celeba_buffalo_s_reworked.csv", index=False)
