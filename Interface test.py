@@ -151,12 +151,22 @@ def update_projection_plots(selected_id):
     # Highlight selected ID
     tsne_s = tsne_results_s.copy()
     tsne_l = tsne_results_l.copy()
-    tsne_s['color'] = tsne_s['id'].apply(lambda i: 'red' if i == selected_id else 'blue')
-    tsne_l['color'] = tsne_l['id'].apply(lambda i: 'red' if i == selected_id else 'blue')
+    tsne_s['color'] = tsne_s['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
+    tsne_l['color'] = tsne_l['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
+
 
     # Generate projection figures
-    proj_fig_s = px.scatter(tsne_s, x='x', y='y', color='color', title="Projection of buffalo_s")
-    proj_fig_l = px.scatter(tsne_l, x='x', y='y', color='color', title="Projection of buffalo_l")
+    proj_fig_s = px.scatter(
+    tsne_s, x='x', y='y', color='color',
+    title="Projection of buffalo_s",
+    color_discrete_map={'red': 'red', 'blue': 'blue'}
+    )
+    proj_fig_l = px.scatter(
+    tsne_l, x='x', y='y', color='color',
+    title="Projection of buffalo_l",
+    color_discrete_map={'red': 'red', 'blue': 'blue'}
+    )
+
 
     return proj_fig_s, proj_fig_l
 
