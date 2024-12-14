@@ -11,10 +11,6 @@ from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
-<<<<<<< HEAD
-=======
-
->>>>>>> 43f084989c8f6f31f5bba9e733bb8616324526c5
 
 # Load data
 
