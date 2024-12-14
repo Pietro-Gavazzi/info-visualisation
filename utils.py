@@ -16,8 +16,8 @@ import base64
 
 # Define functions to process and retrieve data
 def load_data():
-    buffalo_s = pd.read_csv("celeba_buffalo_s.csv")
-    buffalo_l = pd.read_csv("celeba_buffalo_l.csv")
+    buffalo_s = pd.read_csv("celeba_buffalo_s_reworked.csv")
+    buffalo_l = pd.read_csv("celeba_buffalo_l_reworked.csv")
     return buffalo_s, buffalo_l
 
 def preprocess_data(buffalo_s, buffalo_l):
