@@ -4,6 +4,3 @@
 *.pkl
 
 __pycache__/utils.cpython-310.pyc
-__pycache__/utils.cpython-310.pyc
-datasets/preprocessed_data.pkl
-datasets/preprocessed_data.pkl
