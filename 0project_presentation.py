@@ -1,6 +1,6 @@
 from dash import Dash, dcc, dash_table, html
 import pandas as pd
-from utils import load_data, preprocess_data, labels_columns
+from utils import *
 import numpy as np
 import plotly.express as px
 import pickle
@@ -12,7 +12,7 @@ from io import BytesIO
 app = Dash(__name__)
 
 # Define the relative path to the image
-image_path = 'celeba/img_celeba/000211.jpg'  # Path to your image
+image_path = 'img_celeba/000211.jpg'  # Path to your image
 
 # Function to convert image to base64 string
 def encode_image(image_path):
@@ -34,7 +34,7 @@ encoded_image = encode_image(image_path)
 # App layout
 app.layout = html.Div([
     html.H1(
-        "Presentation Project Better Embedding",
+        "Presentation Project \"Better Embedding\" ",
         style={"textAlign": "center", "marginBottom": "20px"}
     ),
     html.P(

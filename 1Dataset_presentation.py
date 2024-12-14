@@ -1,9 +1,10 @@
 from dash import Dash, dcc, dash_table, html
 import pandas as pd
-from utils import load_data, preprocess_data, labels_columns
+from utils import *
 import numpy as np
 import plotly.express as px
 import pickle
+
 
 # Load dictionary from the file
 with open('inconsistent_ids_and_labels.pkl', 'rb') as file:
@@ -26,7 +27,6 @@ fig2.update_layout(
     height=600,
 )
 fig2.update_traces(marker_color="lightcoral", marker_line_color="black", marker_line_width=1)
-
 
 
 df_s, df_l= load_data()
@@ -57,8 +57,6 @@ fig.update_traces(marker_color="skyblue", marker_line_color="black", marker_line
 
 
 
-
-
 # Initialize the Dash app
 app = Dash(__name__)
 
@@ -68,9 +66,6 @@ data = {
     "Having that many pictures:": ["in the range of 27-29", "precisely 30", "in the range of 31-35"],
 }
 df = pd.DataFrame(data)
-
-
-
 
 
 
