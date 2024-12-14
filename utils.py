@@ -14,6 +14,25 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
+
+
+
+embedding_columns = ["embedding_"+str(i) for i in range(512)]
+id_columns = ['id']
+image_name_columns= ['image_name']
+labels_columns = ['5_o_Clock_Shadow', 'Arched_Eyebrows',
+       'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose',
+       'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows',
+       'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair',
+       'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open',
+       'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin',
+       'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns',
+       'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings',
+       'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace',
+       'Wearing_Necktie', 'Young']
+
+       
+
 # Define functions to process and retrieve data
 def load_data():
     buffalo_s = pd.read_csv("celeba_buffalo_s_reworked.csv")
