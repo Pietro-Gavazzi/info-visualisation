@@ -136,6 +136,7 @@ def get_hierarchical_clustering(buffalo_l_embed, sample_size=500):
     return hierarchical_fig
 
 def create_dendrogram_plot(buffalo_l_embed):
+    buffalo_l_embed=pd.DataFrame(buffalo_l_embed)
     # Create a dendrogram plot as a static image
     linkage_matrix = linkage(buffalo_l_embed.sample(n=500, random_state=42), method='ward')
     plt.figure(figsize=(10, 7))

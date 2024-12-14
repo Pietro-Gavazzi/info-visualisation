@@ -7,7 +7,7 @@ import pickle
 
 
 # Load dictionary from the file
-with open('inconsistent_ids_and_labels.pkl', 'rb') as file:
+with open('./datasets/inconsistent_ids_and_labels.pkl', 'rb') as file:
     inconsistent_ids_and_labels = pickle.load(file)
 
 # Calculate the percentage of inconsistent IDs for each label
