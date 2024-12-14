@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from dash import Dash, html, dcc
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.decomposition import PCA
@@ -12,7 +11,6 @@ from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
-import umap
 
 # Load data
 buffalo_s = pd.read_csv("celeba_buffalo_s.csv")

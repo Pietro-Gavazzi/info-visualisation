@@ -33,18 +33,8 @@ buffalo_l_label
 np.sum(np.sum(buffalo_l_embed.isna()))
 
 buffalo_l_embed
-
-#Simplify the dataset by summimg up the embeddings
-buffalo_l_embed_simple = buffalo_l_embed.groupby('id').sum()
-buffalo_l_label_simple = buffalo_l_label.groupby('id').sum()
-
-
-
-# Check for NaNs
-#assert not buffalo_l_label.isna().any().any(), "NaN values found in labels"
-#assert not buffalo_l_embed.isna().any().any(), "NaN values found in embeddings"
-
-# Calculate projections for blurry and non-blurry
+import umap
+n-blurry
 indices1 = buffalo_l_label["Blurry"] == 1
 indices0 = buffalo_l_label["Blurry"] == -1
 
