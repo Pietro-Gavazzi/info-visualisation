@@ -1,175 +1,128 @@
 import pickle
 from dash import Dash, html, dcc, Input, Output
-import plotly.express as px
-from utils import *
 
 # Load preprocessed data
-with open("datasets/preprocessed_data.pkl", "rb") as f:
+with open("datasets/preprocessed2STEP_data.pkl", "rb") as f:
     data = pickle.load(f)
-
-# Unpack preprocessed data
-buffalo_s, buffalo_l = load_data()
-buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
-
-tsne_results_s = data["tsne_2D_s"]  # t-SNE embedding for small dataset
-tsne_results_l = data["tsne_2D_l"]  # t-SNE embedding for large dataset
 
 # Initialize Dash app
 app = Dash(__name__)
 
-# Layout with tabs for multiple pages
+# Layout with dropdown and dynamic graphs
 app.layout = html.Div([
-    dcc.Tabs([
-        dcc.Tab(label="t-SNE Visualization", children=[
-            html.H1("t-SNE Projection with Selected Labels"),
+    html.H1("Clustering Multi-Step Results"),
+    html.P(
+        "Here we will visualize the results of the multi-step clustering process. "
+        "Having a good embedding is great but it is also important to use the right clustering algorithm and hyperparameters to identify meaningful clusters. "
+        "The data points are first projected into 39D space (corresponding to the number of labels to retain as much information as possible) using PCA, then clustered using K-Means, DBSCAN and Dendrograms. "
+        "Finally, we use the labels computed on those 39-dimension data on the data projected into 2D space for visualization."
+    ),
 
-            # Multi-select dropdown for labels
-            html.Div([
-                html.Label("Select Labels to Highlight:"),
-                dcc.Dropdown(
-                    options=[{'label': label, 'value': label} for label in buffalo_s_label.columns],
-                    id='multi-label-selector',
-                    multi=True,  # Allow multiple selections
-                    value=[],    # Default empty selection
-                    placeholder="Select labels to highlight..."
-                )
-            ]),
+    html.Div([
+        html.Label("Select Clustering Method:"),
+        dcc.Dropdown(
+            id='clustering-method',
+            options=[
+                {'label': 'K-Means', 'value': 'kmeans'},
+                {'label': 'DBSCAN', 'value': 'dbscan'},
+                {'label': 'Dendrogram', 'value': 'dendrogram'}
+            ],
+            value='kmeans',
+            clearable=False
+        ),
+    ], style={'margin-bottom': '20px'}),
 
-            # t-SNE scatter plot for buffalo_s and buffalo_l side by side
+    html.Div(id='graphs-container')
+])
+
+
+# Callback to update graphs based on selected method
+@app.callback(
+    Output('graphs-container', 'children'),
+    [Input('clustering-method', 'value')]
+)
+def update_graphs(selected_method):
+    if selected_method == 'kmeans':
+        return html.Div([
+            html.H2("K-Means Clustering Results"),
             html.Div([
                 html.Div([
-                    html.H2("t-SNE Projection for buffalo_s"),
-                    dcc.Graph(id='tsne-plot-s')
+                    html.H3("K-Means Step 1 (buffalo_s)"),
+                    dcc.Graph(figure=data["kmeans_fig_s"])
                 ], style={'width': '48%', 'display': 'inline-block'}),
 
                 html.Div([
-                    html.H2("t-SNE Projection for buffalo_l"),
-                    dcc.Graph(id='tsne-plot-l')
-                ], style={'width': '48%', 'display': 'inline-block'})
-            ])
-        ]),
-
-        dcc.Tab(label="Clustering Multi-Step", children=[
-            html.H1("Clustering Multi-Step Results"),
-
-            # KMeans multi-step results
-            html.Div([
-                html.H2("KMeans Multi-Step Results"),
-                html.Div([
-                    html.Div([
-                        html.H3("KMeans Step 1 (buffalo_s)"),
-                        dcc.Graph(figure=data["kmeans_fig_s"])
-                    ], style={'width': '48%', 'display': 'inline-block'}),
-
-                    html.Div([
-                        html.H3("KMeans Step 1 (buffalo_l)"),
-                        dcc.Graph(figure=data["kmeans_fig_l"])
-                    ], style={'width': '48%', 'display': 'inline-block'})
-                ]),
-
-                html.Div([
-                    html.Div([
-                        html.H3("KMeans Step 2 (buffalo_s)"),
-                        dcc.Graph(figure=data["kmeans_fig_s2STEP"])
-                    ], style={'width': '48%', 'display': 'inline-block'}),
-
-                    html.Div([
-                        html.H3("KMeans Step 2 (buffalo_l)"),
-                        dcc.Graph(figure=data["kmeans_fig_l2STEP"])
-                    ], style={'width': '48%', 'display': 'inline-block'})
-                ])
+                    html.H3("K-Means Step 1 (buffalo_l)"),
+                    dcc.Graph(figure=data["kmeans_fig_l"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
             ]),
-
-            # DBSCAN multi-step results
             html.Div([
-                html.H2("DBSCAN Multi-Step Results"),
                 html.Div([
-                    html.Div([
-                        html.H3("DBSCAN Step 1 (buffalo_s)"),
-                        dcc.Graph(figure=data["dbscan_fig_s"])
-                    ], style={'width': '48%', 'display': 'inline-block'}),
-
-                    html.Div([
-                        html.H3("DBSCAN Step 1 (buffalo_l)"),
-                        dcc.Graph(figure=data["dbscan_fig_l"])
-                    ], style={'width': '48%', 'display': 'inline-block'})
-                ]),
+                    html.H3("K-Means Step 2 (buffalo_s)"),
+                    dcc.Graph(figure=data["kmeans_fig_s2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
 
                 html.Div([
-                    html.Div([
-                        html.H3("DBSCAN Step 2 (buffalo_s)"),
-                        dcc.Graph(figure=data["dbscan_fig_s2STEP"])
-                    ], style={'width': '48%', 'display': 'inline-block'}),
-
-                    html.Div([
-                        html.H3("DBSCAN Step 2 (buffalo_l)"),
-                        dcc.Graph(figure=data["dbscan_fig_l2STEP"])
-                    ], style={'width': '48%', 'display': 'inline-block'})
-                ])
-            ])
-        ]),
-
-        dcc.Tab(label="Text Input", children=[
-            html.H1("Add Notes or Observations"),
-            html.Div([
-                dcc.Textarea(
-                    id='text-input-area',
-                    placeholder="Write your notes here...",
-                    style={'width': '100%', 'height': '300px'}
-                ),
-                html.Button('Submit', id='submit-button', n_clicks=0),
-                html.Div(id='output-text')
+                    html.H3("K-Means Step 2 (buffalo_l)"),
+                    dcc.Graph(figure=data["kmeans_fig_l2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
             ])
         ])
-    ])
-])
 
-# Callbacks for t-SNE plots
-@app.callback(
-    [Output('tsne-plot-s', 'figure'),
-     Output('tsne-plot-l', 'figure')],
-    Input('multi-label-selector', 'value')
-)
-def update_tsne_plots(selected_labels):
-    # Copy t-SNE data for plotting
-    tsne_s = tsne_results_s.copy()
-    tsne_l = tsne_results_l.copy()
+    elif selected_method == 'dbscan':
+        return html.Div([
+            html.H2("DBSCAN Clustering Results"),
+            html.Div([
+                html.Div([
+                    html.H3("DBSCAN Step 1 (buffalo_s)"),
+                    dcc.Graph(figure=data["dbscan_fig_s"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
 
-    # Default color: Not highlighted (blue)
-    tsne_s['highlighted'] = False
-    tsne_l['highlighted'] = False
+                html.Div([
+                    html.H3("DBSCAN Step 1 (buffalo_l)"),
+                    dcc.Graph(figure=data["dbscan_fig_l"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
+            ]),
+            html.Div([
+                html.Div([
+                    html.H3("DBSCAN Step 2 (buffalo_s)"),
+                    dcc.Graph(figure=data["dbscan_fig_s2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
 
-    if selected_labels:
-        # Highlight points matching any selected labels
-        for label in selected_labels:
-            tsne_s['highlighted'] = tsne_s['highlighted'] | (buffalo_s_label[label] == 1)
-            tsne_l['highlighted'] = tsne_l['highlighted'] | (buffalo_l_label[label] == 1)
+                html.Div([
+                    html.H3("DBSCAN Step 2 (buffalo_l)"),
+                    dcc.Graph(figure=data["dbscan_fig_l2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
+            ])
+        ])
 
-    # Create figures with updated highlights
-    tsne_fig_s = px.scatter(
-        tsne_s, x='x', y='y', color='highlighted',
-        title="t-SNE Projection for buffalo_s",
-        color_discrete_map={True: 'red', False: 'blue'}
-    )
+    elif selected_method == 'dendrogram':
+        return html.Div([
+            html.H2("Dendrogram Clustering Results"),
+            html.Div([
+                html.Div([
+                    html.H3("Dendrogram in 2D (buffalo_s)"),
+                    dcc.Graph(figure=data["dendrogram_fig_s2D"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
 
-    tsne_fig_l = px.scatter(
-        tsne_l, x='x', y='y', color='highlighted',
-        title="t-SNE Projection for buffalo_l",
-        color_discrete_map={True: 'red', False: 'blue'}
-    )
+                html.Div([
+                    html.H3("Dendrogram in 2D (buffalo_l)"),
+                    dcc.Graph(figure=data["dendrogram_fig_l2D"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
+            ]),
+            html.Div([
+                html.Div([
+                    html.H3("Dendrogram in Multi-Step Clustering (buffalo_s)"),
+                    dcc.Graph(figure=data["dendrogram_fig_s2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
 
-    return tsne_fig_s, tsne_fig_l
+                html.Div([
+                    html.H3("Dendrogram in Multi-Step Clustering (buffalo_l)"),
+                    dcc.Graph(figure=data["dendrogram_fig_l2STEP"])
+                ], style={'width': '48%', 'display': 'inline-block'}),
+            ])
+        ])
 
-# Callback for Text Input
-@app.callback(
-    Output('output-text', 'children'),
-    Input('submit-button', 'n_clicks'),
-    Input('text-input-area', 'value')
-)
-def update_text_output(n_clicks, value):
-    if n_clicks > 0 and value:
-        return f"Your notes: {value}"
-    return ""
 
 if __name__ == '__main__':
     app.run_server(debug=True)
