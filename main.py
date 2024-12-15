@@ -15,7 +15,8 @@ menu_layout = html.Div([
     # Centered box for vertically stacked menu links
     html.Div([
         html.A("Project presentation", href="/page-1", style={"margin-bottom": "10px", "text-decoration": "none", "font-size": "20px"}),
-        html.A("Human labbeling", href="/page-2", style={"text-decoration": "none", "font-size": "20px"})
+        html.A("Human labbeling", href="/page-2", style={"text-decoration": "none", "font-size": "20px"}),
+        html.A("Human labbeling", href="/page-2", style={"text-decoration": "none", "font-size": "20px"}),
     ], style={
         "display": "flex",
         "flex-direction": "column",  # Stacks the links vertically
@@ -37,11 +38,6 @@ menu_layout = html.Div([
 })
 
 
-# Layout for Page 1
-page_1_layout = project_presentation_page
-
-# Layout for Page 2
-page_2_layout = dataset_presentation_page
 
 # Define the callback to switch between pages
 @app.callback(
@@ -50,9 +46,9 @@ page_2_layout = dataset_presentation_page
 )
 def display_page(pathname):
     if pathname == '/page-1':
-        return page_1_layout
+        return project_presentation_page
     elif pathname == '/page-2':
-        return page_2_layout
+        return dataset_presentation_page
     else:
         return menu_layout
 
