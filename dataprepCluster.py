@@ -22,8 +22,9 @@ tsne_results_l30 = get_tsne_projection(buffalo_l_embed, perplexities=[30])[30]
 print("TSNE 30 complete.")
 
 # print ("Beginning data preparation 2STEP...")
-tsne_39D_l = get_pca_projection(buffalo_l_embed, n_components=39)
-tsne_39D_s = get_pca_projection(buffalo_s_embed, n_components=39)
+# tsne_39D_l = get_pca_projection(buffalo_l_embed, n_components=39)
+# tsne_39D_s = get_pca_projection(buffalo_s_embed, n_components=39)
+tsne_39D_l, tsne_39D_s = get_embed_projection()
 
 # # Add IDs to 39D t-SNE results
 tsne_39D_s['id'] = buffalo_s_label['id']
@@ -46,22 +47,30 @@ tsne_39D_l['Cluster'] = kmeans_clusters_l['Cluster']
 print("K-Means clustering complete.")
 
 print("Beginning t-SNE projection into 2D space for visualization...")
+
+tsne_2D_s = tsne_results_s30
+tsne_2D_l = tsne_results_l30
+
+
+
 # # Step 3: Second t-SNE projection into 2D space for visualization
-#tsne_2D_s = get_tsne_projection(tsne_39D_s.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
-#tsne_2D_l = get_tsne_projection(tsne_39D_l.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
+tsne_2D_s = get_tsne_projection(tsne_39D_s.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
+tsne_2D_l = get_tsne_projection(tsne_39D_l.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
 
 # # Convert t-SNE 2D results to dataframes and add IDs and cluster labels
-#tsne_2D_s = pd.DataFrame(tsne_2D_s, columns=['x', 'y'])
-#tsne_2D_s['id'] = tsne_39D_s['id']
-#tsne_2D_s['Cluster'] = tsne_39D_s['Cluster']
+tsne_2D_s = pd.DataFrame(tsne_2D_s, columns=['x', 'y'])
+tsne_2D_s['id'] = tsne_39D_s['id']
+tsne_2D_s['Cluster'] = tsne_39D_s['Cluster']
 
-#tsne_2D_l = pd.DataFrame(tsne_2D_l, columns=['x', 'y'])
-#tsne_2D_l['id'] = tsne_39D_l['id']
-#tsne_2D_l['Cluster'] = tsne_39D_l['Cluster']
+tsne_2D_l = pd.DataFrame(tsne_2D_l, columns=['x', 'y'])
+tsne_2D_l['id'] = tsne_39D_l['id']
+tsne_2D_l['Cluster'] = tsne_39D_l['Cluster']
+
+
 
 # # Visualization of K-Means clusters on 2D t-SNE results
-kmeans_fig_s2STEP = px.scatter(tsne_results_s30, x='x', y='y', color=tsne_39D_s["Cluster"], title="K-Means Clustering (Buffalo S - 2D t-SNE)")
-kmeans_fig_l2STEP = px.scatter(tsne_results_l30, x='x', y='y', color=tsne_39D_l["Cluster"], title="K-Means Clustering (Buffalo L - 2D t-SNE)")
+kmeans_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color=tsne_39D_s["Cluster"], title="K-Means Clustering (Buffalo S - 2D t-SNE)")
+kmeans_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color=tsne_39D_l["Cluster"], title="K-Means Clustering (Buffalo L - 2D t-SNE)")
 
 print("t-SNE 2D projection complete.")
 
@@ -71,15 +80,15 @@ dbscan_clusters_s = get_dbscan_clustering(tsne_39D_s.drop(columns='id').values, 
 dbscan_clusters_l = get_dbscan_clustering(tsne_39D_l.drop(columns='id').values, eps=10, min_samples=4)
 
 # # Add DBSCAN cluster labels to 39D t-SNE data
-print('Cluster' in dbscan_clusters_s.columns)
+#print('Cluster' in dbscan_clusters_s.columns)
 tsne_39D_s['DBSCAN_Cluster'] = dbscan_clusters_s['Cluster']
 tsne_39D_l['DBSCAN_Cluster'] = dbscan_clusters_l['Cluster']
 
 
 
 # # Visualization of DBSCAN clusters on 2D t-SNE results
-dbscan_fig_s2STEP = px.scatter(tsne_results_s30, x='x', y='y', color=tsne_39D_s['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo S - 2D t-SNE)")
-dbscan_fig_l2STEP = px.scatter(tsne_results_l30, x='x', y='y', color=tsne_39D_l['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo L - 2D t-SNE)")
+dbscan_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color=tsne_39D_s['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo S - 2D t-SNE)")
+dbscan_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color=tsne_39D_l['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo L - 2D t-SNE)")
 
 print("DBSCAN clustering complete.")
 
@@ -94,11 +103,11 @@ tsne_39D_l['Dendrogram_Cluster'] = fcluster(linkage_l, t=num_clusters, criterion
 
 print("Generating 2D visualizations for dendrogram clusters...")
 dendrogram_fig_s2STEP = px.scatter(
-    tsne_results_s30, x='x', y='y', color=tsne_39D_s['Dendrogram_Cluster'],
+    tsne_2D_s, x='x', y='y', color=tsne_39D_s['Dendrogram_Cluster'],
     title="Dendrogram Clustering (Buffalo S - 39D t-SNE)"
 )
 dendrogram_fig_l2STEP = px.scatter(
-    tsne_results_l30, x='x', y='y', color=tsne_39D_l['Dendrogram_Cluster'],
+    tsne_2D_l, x='x', y='y', color=tsne_39D_l['Dendrogram_Cluster'],
     title="Dendrogram Clustering (Buffalo L - 39D t-SNE)"
 )
 print("Dendrogram clustering complete.")
@@ -211,8 +220,8 @@ data_to_save = {
     #"dendrogram_image_pca_l": dendrogram_image_pca_l,
     "tsne_39D_s": tsne_39D_s,
     "tsne_39D_l": tsne_39D_l,
-    "tsne_2D_s": tsne_2D_s,
-    "tsne_2D_l": tsne_2D_l,
+    #"tsne_2D_s": tsne_2D_s,
+    #"tsne_2D_l": tsne_2D_l,
     "kmeans_fig_s2STEP": kmeans_fig_s2STEP,
     "kmeans_fig_l2STEP": kmeans_fig_l2STEP,
     "dbscan_fig_s2STEP": dbscan_fig_s2STEP,

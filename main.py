@@ -3,9 +3,13 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 from  A0project_presentation   import *
 from  A1Dataset_presentation   import *
+from CPage import *
+from BPage import *
+from APage import *
+
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 # Define the layout for the menu page
 menu_layout = html.Div([
@@ -16,7 +20,9 @@ menu_layout = html.Div([
     html.Div([
         html.A("Project presentation", href="/page-1", style={"margin-bottom": "10px", "text-decoration": "none", "font-size": "20px"}),
         html.A("Human labbeling", href="/page-2", style={"text-decoration": "none", "font-size": "20px"}),
-        html.A("Human labbeling", href="/page-2", style={"text-decoration": "none", "font-size": "20px"}),
+        html.A("First Visualization", href="/page-3", style={"text-decoration": "none", "font-size": "20px"}),
+        html.A("Label Visualization", href="/page-4", style={"text-decoration": "none", "font-size": "20px"}),
+        html.A("Clustering", href="/page-5", style={"text-decoration": "none", "font-size": "20px"}),
     ], style={
         "display": "flex",
         "flex-direction": "column",  # Stacks the links vertically
@@ -49,6 +55,14 @@ def display_page(pathname):
         return project_presentation_page
     elif pathname == '/page-2':
         return dataset_presentation_page
+    elif pathname == '/page-3':
+        
+        return APage
+    elif pathname == '/page-4':
+        return Bpage
+    elif pathname == '/page-5':
+        return Cpage
+    
     else:
         return menu_layout
 
@@ -57,6 +71,11 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),  # Keeps track of the current URL
     html.Div(id='page-content')  # This will display the content of the current page
 ])
+# Register callbacks for each page
+register_callbacksAPage(app)
+register_callbacksBPage(app)
+register_callbacksCPage(app)
+
 
 # Run the app
 if __name__ == '__main__':

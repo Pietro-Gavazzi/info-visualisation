@@ -10,6 +10,8 @@ from PIL import Image
 import base64
 from io import BytesIO
 
+
+
 # Load precomputed data
 with open("datasets/preprocessed_data.pkl", "rb") as f:
     data = pickle.load(f)
@@ -33,10 +35,15 @@ dendrogram_image_tsne_l = data["dendrogram_image_tsne_l"]
 #dendrogram_image_pca_l = data["dendrogram_image_pca_l"]
 
 # Initialize Dash app
-app = Dash(__name__)
+
 
 # Layout
-app.layout = html.Div([
+APage = html.Div([
+    
+    html.Div([
+    html.A("Back to Menu", href="/", style={"margin-top": "20px", 'alignItems': 'center'})
+], style={"justify-content": "center",'alignItems': 'center'}),
+    
     html.H1("Buffalo Dataset Analysis"),
 
     
@@ -103,83 +110,85 @@ app.layout = html.Div([
         html.H2("Primary Analysis"),
         html.P(
                 "We can observe a good clustering of the data in the T-SNE projections. "
+                "Those cluster reprensent the different persons, by their id."
                 "but we can somethimes see appear some outliers like with ID 15 and 47 indicating that the model is not perfect or wrongly labelled images."
         ),
         ], style={'margin-bottom': '20px', 'padding': '10px', 'backgroundColor': '#f9f9f9', 'border': '1px solid #ddd'}),
 
-    
+    html.Div([
+    html.A("Back to Menu", href="/", style={"margin-top": "20px", 'alignItems': 'center'})
+], style={"justify-content": "center",'alignItems': 'center'}),
 ])
 
 # Callbacks for projections
-@app.callback(
-    [Output('projection-plot-s', 'figure'),
-     Output('projection-plot-l', 'figure')],
-    [Input('id-selector', 'value'),
-     Input('perplexity-selector', 'value')]
-)
-def update_projection_plots(selected_id,selected_perplexity):
-    
-    
-    # Highlight selected ID
-    
-    with open("datasets/preprocessed_data.pkl", "rb") as f:
-        data = pickle.load(f)
-
-    # Unpack data
-    
-    tsne_results_s = data["tsne_results_s"]
-    tsne_results_l = data["tsne_results_l"]
-    tsne_results_s60 = data["tsne_results_s60"]
-    tsne_results_l60 = data["tsne_results_l60"]
-    tsne_results_s3 = data["tsne_results_s3"]
-    tsne_results_l3 = data["tsne_results_l3"]
-    tsne_results_s1000 = data["tsne_results_s1000"]
-    tsne_results_l1000 = data["tsne_results_l1000"]
-    
-    buffalo_l, buffalo_s = data["buffalo_l"], data["buffalo_s"]
-    buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
-    tsne_results_s60['id'] = buffalo_s_label['id']
-    tsne_results_l60['id'] = buffalo_l_label['id']
-    tsne_results_s3['id'] = buffalo_s_label['id']
-    tsne_results_l3['id'] = buffalo_l_label['id']
-    tsne_results_s1000['id'] = buffalo_s_label['id']
-    tsne_results_l1000['id'] = buffalo_l_label['id']
-    
-    if selected_perplexity == 3:
-        tsne_s = tsne_results_s3.copy()
-        tsne_l = tsne_results_l3.copy()
-    elif selected_perplexity == 30:
-        tsne_s = tsne_results_s.copy()
-        tsne_l = tsne_results_l.copy()
-    elif selected_perplexity == 60:
-        tsne_s = tsne_results_s60.copy()
-        tsne_l = tsne_results_l60.copy()
-    elif selected_perplexity == 1000:
-        tsne_s = tsne_results_s1000.copy()
-        tsne_l = tsne_results_l1000.copy()
+def register_callbacksAPage(app):
+    @app.callback(
+        [Output('projection-plot-s', 'figure'),
+        Output('projection-plot-l', 'figure')],
+        [Input('id-selector', 'value'),
+        Input('perplexity-selector', 'value')]
+    )
+    def update_projection_plots(selected_id,selected_perplexity):
         
-    
-    tsne_s['color'] = tsne_s['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
-    tsne_l['color'] = tsne_l['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
+        
+        # Highlight selected ID
+        
+        with open("datasets/preprocessed_data.pkl", "rb") as f:
+            data = pickle.load(f)
 
-    # Generate projection figures
-    proj_fig_s = px.scatter(
-    tsne_s, x='x', y='y', color='color',
-    title="Projection of buffalo_s",
-    color_discrete_map={'red': 'red', 'blue': 'blue'},
-    hover_data=['id']
-    )
-    proj_fig_l = px.scatter(
-    tsne_l, x='x', y='y', color='color',
-    title="Projection of buffalo_l",
-    color_discrete_map={'red': 'red', 'blue': 'blue'},
-    hover_data=['id']
-    )
+        # Unpack data
+        
+        tsne_results_s = data["tsne_results_s"]
+        tsne_results_l = data["tsne_results_l"]
+        tsne_results_s60 = data["tsne_results_s60"]
+        tsne_results_l60 = data["tsne_results_l60"]
+        tsne_results_s3 = data["tsne_results_s3"]
+        tsne_results_l3 = data["tsne_results_l3"]
+        tsne_results_s1000 = data["tsne_results_s1000"]
+        tsne_results_l1000 = data["tsne_results_l1000"]
+        
+        buffalo_l, buffalo_s = data["buffalo_l"], data["buffalo_s"]
+        buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
+        tsne_results_s60['id'] = buffalo_s_label['id']
+        tsne_results_l60['id'] = buffalo_l_label['id']
+        tsne_results_s3['id'] = buffalo_s_label['id']
+        tsne_results_l3['id'] = buffalo_l_label['id']
+        tsne_results_s1000['id'] = buffalo_s_label['id']
+        tsne_results_l1000['id'] = buffalo_l_label['id']
+        
+        if selected_perplexity == 3:
+            tsne_s = tsne_results_s3.copy()
+            tsne_l = tsne_results_l3.copy()
+        elif selected_perplexity == 30:
+            tsne_s = tsne_results_s.copy()
+            tsne_l = tsne_results_l.copy()
+        elif selected_perplexity == 60:
+            tsne_s = tsne_results_s60.copy()
+            tsne_l = tsne_results_l60.copy()
+        elif selected_perplexity == 1000:
+            tsne_s = tsne_results_s1000.copy()
+            tsne_l = tsne_results_l1000.copy()
+            
+        
+        tsne_s['color'] = tsne_s['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
+        tsne_l['color'] = tsne_l['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
 
-    return proj_fig_s, proj_fig_l
+        # Generate projection figures
+        proj_fig_s = px.scatter(
+        tsne_s, x='x', y='y', color='color',
+        title="Projection of buffalo_s",
+        color_discrete_map={'red': 'red', 'blue': 'blue'},
+        hover_data=['id']
+        )
+        proj_fig_l = px.scatter(
+        tsne_l, x='x', y='y', color='color',
+        title="Projection of buffalo_l",
+        color_discrete_map={'red': 'red', 'blue': 'blue'},
+        hover_data=['id']
+        )
+
+        return proj_fig_s, proj_fig_l
 
 
 
-# Run the app
-if __name__ == '__main__':
-    app.run_server(debug=True)
+
