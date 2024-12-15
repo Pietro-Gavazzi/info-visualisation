@@ -205,6 +205,20 @@ def get_pca_projection(buffalo_l_embed, n_components=2):
     else:
         return pd.DataFrame(pca_results, columns=[f'PCA{i+1}' for i in range(n_components)])
 
+
+
+def get_embed_projection(columns_label=labels_columns, column_not_label=labels_columns):
+    dfl = pd.read_csv("datasets/l_embed.csv")
+    dfl.drop("Unnamed: 0", axis=1, inplace=True)
+
+    dfs = pd.read_csv("datasets/s_embed.csv")
+    dfs.drop("Unnamed: 0", axis=1, inplace=True)
+
+    columns_name = ["embed_"+i for i in columns_label]+["embed_not_"+i for i in column_not_label]
+    return dfs[columns_name], dfl[columns_name]
+
+
+
 def get_umap_projection(buffalo_l_embed):
     reducer = umap.UMAP(n_components=2, random_state=42)
     umap_results = reducer.fit_transform(buffalo_l_embed)
