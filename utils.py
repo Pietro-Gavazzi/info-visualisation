@@ -17,21 +17,11 @@ from PIL import Image
 
 
 
+back_to_menu_block = html.Div([
+    html.A("Back to Menu", href="/", style={"margin-top": "20px", 'alignItems': 'center'})
+], style={"justify-content": "center",'alignItems': 'center'})
 
 
-embedding_columns = ["embedding_"+str(i) for i in range(512)]
-id_columns = ['id']
-image_name_columns= ['image_name']
-labels_columns = ['5_o_Clock_Shadow', 'Arched_Eyebrows',
-       'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose',
-       'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows',
-       'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair',
-       'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open',
-       'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin',
-       'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns',
-       'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings',
-       'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace',
-       'Wearing_Necktie', 'Young']
 
        
 # Function to convert image to base64 string
@@ -69,7 +59,67 @@ def get_tickals(percentages):
         tick_interval=0.5
 
     # Generate a list of tick values from min_y to max_y with the defined interval
-    return list(range(0, int(max_y) + tick_interval, tick_interval))
+    return list(np.arange(11)*tick_interval)
+
+
+
+def create_plotbar(dataset, xlabel="x", ylabel="y", title="My Plotbar"):
+    # Create the scatter plot with lines
+    fig = px.scatter(
+        x=dataset.index,
+        y=dataset.values,
+        labels={"x": xlabel, "y": ylabel},
+        title=title,
+    )
+
+    # Add points (dots) with custom styling
+    fig.update_traces(
+        mode="markers",  # Set mode to 'markers' for dots
+        marker=dict(
+            size=10,  # Size of the dots
+            color="skyblue",  # Fill color of the dots
+            line=dict(color="black", width=1)  # Black border around the dots
+        )
+    )
+
+    # Add horizontal gray lines for each tick value
+    fig.update_layout(
+        shapes=[
+            dict(
+                type="line",
+                x0=-0.5,
+                x1=len(dataset) - 0.5,
+                y0=z,
+                y1=z,
+                line=dict(color="skyblue", width=1)
+            ) for z in get_tickals(dataset)
+        ],
+        xaxis=dict(title=xlabel, tickangle=45),
+        yaxis=dict(title=ylabel, tickvals=get_tickals(dataset)),
+        margin=dict(l=40, r=40, t=40, b=120),
+        height=600,
+        plot_bgcolor="white",
+    )
+
+    return fig
+
+
+
+
+
+embedding_columns = ["embedding_"+str(i) for i in range(512)]
+id_columns = ['id']
+image_name_columns= ['image_name']
+labels_columns = ['5_o_Clock_Shadow', 'Arched_Eyebrows',
+       'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose',
+       'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows',
+       'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair',
+       'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open',
+       'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin',
+       'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns',
+       'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings',
+       'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace',
+       'Wearing_Necktie', 'Young']
 
 
 # Define functions to process and retrieve data

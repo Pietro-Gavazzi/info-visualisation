@@ -11,80 +11,80 @@ buffalo_s, buffalo_l = load_data()
 buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
 
 
-# print ("Beginning data preparation 2STEP...")
-# tsne_39D_l = get_pca_projection(buffalo_l_embed, n_components=39)
-# tsne_39D_s = get_pca_projection(buffalo_s_embed, n_components=39)
+print ("Beginning data preparation 2STEP...")
+tsne_39D_l = get_pca_projection(buffalo_l_embed, n_components=39)
+tsne_39D_s = get_pca_projection(buffalo_s_embed, n_components=39)
 
-# # Add IDs to 39D t-SNE results
-# tsne_39D_s['id'] = buffalo_s_label['id']
-# tsne_39D_l['id'] = buffalo_l_label['id']
-# # K-Means Clustering
-# print("2STEP data preparation complete.")
-
-
-
-# print("Beginning K-Means clustering on 39D t-SNE results...")
-
-# # Step 2: K-Means clustering on the 39D t-SNE results
-# kmeans_clusters_s = get_kmeans_clustering(tsne_39D_s.drop(columns='id').values, n_clusters=1000)
-# kmeans_clusters_l = get_kmeans_clustering(tsne_39D_l.drop(columns='id').values, n_clusters=1000)
-
-# # Add cluster labels to dataframes
-# tsne_39D_s['Cluster'] = kmeans_clusters_s['Cluster']
-# tsne_39D_l['Cluster'] = kmeans_clusters_l['Cluster']
-
-# print("K-Means clustering complete.")
-
-# print("Beginning t-SNE projection into 2D space for visualization...")
-# # Step 3: Second t-SNE projection into 2D space for visualization
-# tsne_2D_s = get_tsne_projection(tsne_39D_s.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
-# tsne_2D_l = get_tsne_projection(tsne_39D_l.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
-
-# # Convert t-SNE 2D results to dataframes and add IDs and cluster labels
-# tsne_2D_s = pd.DataFrame(tsne_2D_s, columns=['x', 'y'])
-# tsne_2D_s['id'] = tsne_39D_s['id']
-# tsne_2D_s['Cluster'] = tsne_39D_s['Cluster']
-
-# tsne_2D_l = pd.DataFrame(tsne_2D_l, columns=['x', 'y'])
-# tsne_2D_l['id'] = tsne_39D_l['id']
-# tsne_2D_l['Cluster'] = tsne_39D_l['Cluster']
-
-# # Visualization of K-Means clusters on 2D t-SNE results
-# kmeans_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color='Cluster', title="K-Means Clustering (Buffalo S - 2D t-SNE)")
-# kmeans_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color='Cluster', title="K-Means Clustering (Buffalo L - 2D t-SNE)")
-
-# print("t-SNE 2D projection complete.")
-
-# print("Beginning DBSCAN clustering on 39D t-SNE results...")
-# # Optional: DBSCAN Clustering (if needed)
-# dbscan_clusters_s = get_dbscan_clustering(tsne_39D_s.drop(columns='id').values, eps=3, min_samples=5)
-# dbscan_clusters_l = get_dbscan_clustering(tsne_39D_l.drop(columns='id').values, eps=3, min_samples=5)
-
-# # Add DBSCAN cluster labels to 39D t-SNE data
-# print('Cluster' in dbscan_clusters_s.columns)
-# tsne_39D_s['DBSCAN_Cluster'] = dbscan_clusters_s['Cluster']
-# tsne_39D_l['DBSCAN_Cluster'] = dbscan_clusters_l['Cluster']
+# Add IDs to 39D t-SNE results
+tsne_39D_s['id'] = buffalo_s_label['id']
+tsne_39D_l['id'] = buffalo_l_label['id']
+# K-Means Clustering
+print("2STEP data preparation complete.")
 
 
 
-# # Visualization of DBSCAN clusters on 2D t-SNE results
-# dbscan_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color=tsne_39D_s['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo S - 2D t-SNE)")
-# dbscan_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color=tsne_39D_l['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo L - 2D t-SNE)")
+print("Beginning K-Means clustering on 39D t-SNE results...")
 
-# print("DBSCAN clustering complete.")
+# Step 2: K-Means clustering on the 39D t-SNE results
+kmeans_clusters_s = get_kmeans_clustering(tsne_39D_s.drop(columns='id').values, n_clusters=1000)
+kmeans_clusters_l = get_kmeans_clustering(tsne_39D_l.drop(columns='id').values, n_clusters=1000)
+
+# Add cluster labels to dataframes
+tsne_39D_s['Cluster'] = kmeans_clusters_s['Cluster']
+tsne_39D_l['Cluster'] = kmeans_clusters_l['Cluster']
+
+print("K-Means clustering complete.")
+
+print("Beginning t-SNE projection into 2D space for visualization...")
+# Step 3: Second t-SNE projection into 2D space for visualization
+tsne_2D_s = get_tsne_projection(tsne_39D_s.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
+tsne_2D_l = get_tsne_projection(tsne_39D_l.drop(columns=['id', 'Cluster']).values, perplexities=[30], n_components=2)[30]
+
+# Convert t-SNE 2D results to dataframes and add IDs and cluster labels
+tsne_2D_s = pd.DataFrame(tsne_2D_s, columns=['x', 'y'])
+tsne_2D_s['id'] = tsne_39D_s['id']
+tsne_2D_s['Cluster'] = tsne_39D_s['Cluster']
+
+tsne_2D_l = pd.DataFrame(tsne_2D_l, columns=['x', 'y'])
+tsne_2D_l['id'] = tsne_39D_l['id']
+tsne_2D_l['Cluster'] = tsne_39D_l['Cluster']
+
+# Visualization of K-Means clusters on 2D t-SNE results
+kmeans_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color='Cluster', title="K-Means Clustering (Buffalo S - 2D t-SNE)")
+kmeans_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color='Cluster', title="K-Means Clustering (Buffalo L - 2D t-SNE)")
+
+print("t-SNE 2D projection complete.")
+
+print("Beginning DBSCAN clustering on 39D t-SNE results...")
+# Optional: DBSCAN Clustering (if needed)
+dbscan_clusters_s = get_dbscan_clustering(tsne_39D_s.drop(columns='id').values, eps=3, min_samples=5)
+dbscan_clusters_l = get_dbscan_clustering(tsne_39D_l.drop(columns='id').values, eps=3, min_samples=5)
+
+# Add DBSCAN cluster labels to 39D t-SNE data
+print('Cluster' in dbscan_clusters_s.columns)
+tsne_39D_s['DBSCAN_Cluster'] = dbscan_clusters_s['Cluster']
+tsne_39D_l['DBSCAN_Cluster'] = dbscan_clusters_l['Cluster']
 
 
-# print("Beginning data preparation TSNE...")  
-# # Pre-compute t-SNE and PCA results
-# tsne_results_s3 = get_tsne_projection(buffalo_s_embed, perplexities=[3])[3]
-# tsne_results_l3 = get_tsne_projection(buffalo_l_embed, perplexities=[3])[3]
-# print("TSNE 3 complete.")
-# tsne_results_s30 = get_tsne_projection(buffalo_s_embed, perplexities=[30])[30]
-# tsne_results_l30 = get_tsne_projection(buffalo_l_embed, perplexities=[30])[30]
-# print("TSNE 30 complete.")
-# tsne_results_s60 = get_tsne_projection(buffalo_s_embed, perplexities=[60])[60]
-# tsne_results_l60 = get_tsne_projection(buffalo_l_embed, perplexities=[60])[60]
-# print("TSNE 60 complete.")
+
+# Visualization of DBSCAN clusters on 2D t-SNE results
+dbscan_fig_s2STEP = px.scatter(tsne_2D_s, x='x', y='y', color=tsne_39D_s['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo S - 2D t-SNE)")
+dbscan_fig_l2STEP = px.scatter(tsne_2D_l, x='x', y='y', color=tsne_39D_l['DBSCAN_Cluster'], title="DBSCAN Clustering (Buffalo L - 2D t-SNE)")
+
+print("DBSCAN clustering complete.")
+
+
+print("Beginning data preparation TSNE...")  
+# Pre-compute t-SNE and PCA results
+tsne_results_s3 = get_tsne_projection(buffalo_s_embed, perplexities=[3])[3]
+tsne_results_l3 = get_tsne_projection(buffalo_l_embed, perplexities=[3])[3]
+print("TSNE 3 complete.")
+tsne_results_s30 = get_tsne_projection(buffalo_s_embed, perplexities=[30])[30]
+tsne_results_l30 = get_tsne_projection(buffalo_l_embed, perplexities=[30])[30]
+print("TSNE 30 complete.")
+tsne_results_s60 = get_tsne_projection(buffalo_s_embed, perplexities=[60])[60]
+tsne_results_l60 = get_tsne_projection(buffalo_l_embed, perplexities=[60])[60]
+print("TSNE 60 complete.")
 tsne_results_s1000 = get_tsne_projection(buffalo_s_embed, perplexities=[1000])[1000]
 tsne_results_l1000 = get_tsne_projection(buffalo_l_embed, perplexities=[1000])[1000]
 print("TSNE 1000 complete.")
