@@ -92,20 +92,20 @@ label_exploration_block = html.Div([
 percentages = (np.sum(df_s[labels_columns] == 1, axis=0) / len(df_s)) * 100
 percentages = percentages.sort_values(ascending=False)
 
-
-
 fig1 = create_plotbar(percentages, "Labels", "Percentage (%)", "Percentage of Pictures with Each Label" )
-# Callback to update the figure based on selected labels
-@app.callback(
-    dependencies.Output("label-bar-chart", "figure"),
-    [dependencies.Input("label-selector", "value")]
-)
-def update_chart(selected_labels):
-    if not selected_labels:
-        filtered_percentages = percentages
-    else:
-        filtered_percentages = percentages[percentages.index.isin(selected_labels)]
-    return create_plotbar(filtered_percentages, "Labels", "Percentage (%)", "Percentage of Pictures with Each Label" )
+
+def register_callbacksA11Page(app):
+    # Callback to update the figure based on selected labels
+    @app.callback(
+        dependencies.Output("label-bar-chart", "figure"),
+        [dependencies.Input("label-selector", "value")]
+    )
+    def update_chart(selected_labels):
+        if not selected_labels:
+            filtered_percentages = percentages
+        else:
+            filtered_percentages = percentages[percentages.index.isin(selected_labels)]
+        return create_plotbar(filtered_percentages, "Labels", "Percentage (%)", "Percentage of Pictures with Each Label" )
 
 
 
@@ -153,17 +153,18 @@ consistency_percentage=consistency_percentage.sort_values(ascending=False)
 
 
 fig2 = create_plotbar(consistency_percentage, "Labels", "Percentage (%)", "Percentage of poeple who have this label that vary for different pictures" )
-# Callback to update the figure based on selected labels
-@app.callback(
-    dependencies.Output("label-consistency-bar-chart", "figure"),
-    [dependencies.Input("label-consistency-selector", "value")]
-)
-def update_chart(selected_labels):
-    if not selected_labels:
-        filtered_consistency_percentage = consistency_percentage
-    else:
-        filtered_consistency_percentage = consistency_percentage[consistency_percentage.index.isin(selected_labels)]
-    return create_plotbar(filtered_consistency_percentage, "Labels", "Percentage (%)", "Percentage of poeple who have this label that vary for different pictures" )
+def register_callbacksA12Page(app):
+    # Callback to update the figure based on selected labels
+    @app.callback(
+        dependencies.Output("label-consistency-bar-chart", "figure"),
+        [dependencies.Input("label-consistency-selector", "value")]
+    )
+    def update_chart(selected_labels):
+        if not selected_labels:
+            filtered_consistency_percentage = consistency_percentage
+        else:
+            filtered_consistency_percentage = consistency_percentage[consistency_percentage.index.isin(selected_labels)]
+        return create_plotbar(filtered_consistency_percentage, "Labels", "Percentage (%)", "Percentage of poeple who have this label that vary for different pictures" )
 
 
 

@@ -3,6 +3,7 @@ from dash import html, dcc
 from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.graph_objects as go
+from utils import *
 
 # Load datasets
 celeba_s = pd.read_csv("datasets/celeba_buffalo_s_reworked.csv")
@@ -10,15 +11,7 @@ celeba_l = pd.read_csv("datasets/celeba_buffalo_l_reworked.csv")
 s_embed = pd.read_csv("datasets/s_embed.csv")
 l_embed = pd.read_csv("datasets/l_embed.csv")
 
-# Define embedding and label columns
-embedding_columns = ["embedding_" + str(i) for i in range(512)]
-label_columns = ['5_o_Clock_Shadow', 'Arched_Eyebrows', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 
-                 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 
-                 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 
-                 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 
-                 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 
-                 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 
-                 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
+global_style = {'marginLeft': '10%', 'marginRight': '10%'}
 
 # Function to create histograms
 def create_histogram(data, column, title):
@@ -46,7 +39,7 @@ def create_scatter(embed_data, label_data, selected_feature):
         y=embed_data["embed_not_" + selected_feature][label_data[selected_feature] == 1],
         mode='markers',
         marker=dict(color='red', symbol='star'),
-        name="Male"
+        name=selected_feature
     )
 
     trace_female = go.Scatter(
@@ -54,7 +47,7 @@ def create_scatter(embed_data, label_data, selected_feature):
         y=embed_data["embed_not_" + selected_feature][label_data[selected_feature] == -1],
         mode='markers',
         marker=dict(color='blue', symbol='star'),
-        name="Female"
+        name="not_"+selected_feature
     )
 
     layout = go.Layout(
@@ -70,32 +63,29 @@ def create_scatter(embed_data, label_data, selected_feature):
 app = dash.Dash(__name__)
 
 # Layout of the Dash app
-app.layout = html.Div([
-    html.H1("Embedding and Label Analysis", style={'textAlign': 'center'}),
-    
+embedding_presentation =html.Div([
+    back_to_menu_block,
+    html.H2("DNN Labbeling", style={'textAlign': 'center'}),
+    html.H3("A little histogram", style=global_style),
+    dcc.Markdown(
+    """
+    Embeddings are difficult to interpret with the naked eye, if we just see plot an histogram of all values for all 511 embeddings we will only see a boring and uninterpretable gaussian behavior.   
+    """,
+    style=global_style
+    ),
     # Dropdowns for embedding and label selection
     html.Div([
-        html.Div([
-            html.Label("Select Embedding Column"),
-            dcc.Dropdown(
-                id='embedding-dropdown',
-                options=[{'label': col, 'value': col} for col in embedding_columns],
-                value=embedding_columns[0],  # Default value
-                style={'width': '90%'}
-            )
-        ], style={'display': 'inline-block', 'width': '45%'}),
+        html.Label("Select Embedding Column"),
+        dcc.Dropdown(
+            id='embedding-dropdown',
+            options=[{'label': col, 'value': col} for col in embedding_columns],
+            value=embedding_columns[0],  # Default value
+            style={'width': '90%'}
+        )
+    ], style={'display': 'inline-block', 'width': '45%'}),
         
-        html.Div([
-            html.Label("Select Label Column"),
-            dcc.Dropdown(
-                id='label-dropdown',
-                options=[{'label': col, 'value': col} for col in label_columns],
-                value='Male',  # Default value
-                style={'width': '90%'}
-            )
-        ], style={'display': 'inline-block', 'width': '45%'}),
-    ], style={'padding': '20px'}),
-    
+
+
     # Histograms
     html.Div([
         html.Div([
@@ -105,8 +95,35 @@ app.layout = html.Div([
         html.Div([
             dcc.Graph(id='celeba-l-histogram')
         ], style={'display': 'inline-block', 'width': '48%'}),
-    ]),
-    
+    ], style = global_style),
+
+
+
+    html.H3("The secrets of the embedding space", style=global_style),
+    dcc.Markdown(
+    """
+    What was discovered in neural network representation is that if we take the mean of the embeddings of the pictures with a specific label, this vector of mean embedding can be interpreted as the the dnn representation of the mabel.
+
+    This has inspire our linear algorithm for dimensionality reduction: we chose some features we want to study, and the scalar product between the normalised mean vector of the label (mean of all pictures label=1) and a picture, and the mean vector of the not_label (mean of all pictures label=-1) and a picture are two new features called respectively "embed label" and "embed not label".  
+
+    You can see here under a plot of the data in these two new features for the chosen label.       
+    """,
+    style=global_style
+    ),
+
+
+
+    html.Div([
+        html.Label("Select Label Column"),
+        dcc.Dropdown(
+            id='label-dropdown',
+            options=[{'label': col, 'value': col} for col in labels_columns],
+            value='Male',  # Default value
+            style={'width': '90%'}
+        )
+    ], style={'display': 'inline-block', 'width': '45%'}),
+
+
     # Scatter plots
     html.Div([
         html.Div([
@@ -116,29 +133,35 @@ app.layout = html.Div([
         html.Div([
             dcc.Graph(id='l-embedding-scatter')
         ], style={'display': 'inline-block', 'width': '48%'}),
-    ])
-])
+    ], style = global_style),
+    back_to_menu_block
+], style = global_style)
 
-# Callbacks to update histograms and scatter plots
-@app.callback(
-    [Output('celeba-s-histogram', 'figure'),
-     Output('celeba-l-histogram', 'figure'),
-     Output('s-embedding-scatter', 'figure'),
-     Output('l-embedding-scatter', 'figure')],
-    [Input('embedding-dropdown', 'value'),
-     Input('label-dropdown', 'value')]
-)
-def update_plots(selected_embedding, selected_label):
-    # Histograms
-    s_hist = create_histogram(celeba_s, selected_embedding, "Celeba S Histogram")
-    l_hist = create_histogram(celeba_l, selected_embedding, "Celeba L Histogram")
-    
-    # Scatter plots
-    s_scatter = create_scatter(s_embed, celeba_s, selected_label)
-    l_scatter = create_scatter(l_embed, celeba_l, selected_label)
-    
-    return s_hist, l_hist, s_scatter, l_scatter
+
+
+def register_callbacksA2Page(app):
+    # Callbacks to update histograms and scatter plots
+    @app.callback(
+        [Output('celeba-s-histogram', 'figure'),
+        Output('celeba-l-histogram', 'figure'),
+        Output('s-embedding-scatter', 'figure'),
+        Output('l-embedding-scatter', 'figure')],
+        [Input('embedding-dropdown', 'value'),
+        Input('label-dropdown', 'value')]
+    )
+    def update_plots(selected_embedding, selected_label):
+        # Histograms
+        s_hist = create_histogram(celeba_s, selected_embedding, "Celeba S Histogram")
+        l_hist = create_histogram(celeba_l, selected_embedding, "Celeba L Histogram")
+        
+        # Scatter plots
+        s_scatter = create_scatter(s_embed, celeba_s, selected_label)
+        l_scatter = create_scatter(l_embed, celeba_l, selected_label)
+        
+        return s_hist, l_hist, s_scatter, l_scatter
 
 # Run the app
 if __name__ == '__main__':
+    register_callbacksA2Page(app)
+    app.layout = embedding_presentation
     app.run_server(debug=True)

@@ -44,4 +44,4 @@ def filterData():
     print("Number of common rows:", len(common_image_names))
     print ("Number of rows in buffalo_s_filtered:", len(buffalo_s_filtered))
     print ("Number of rows in buffalo_l_filtered:", len(buffalo_l_filtered))
-    filterData()
+filterData()

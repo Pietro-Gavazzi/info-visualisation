@@ -6,9 +6,7 @@ from utils import *
 import pickle
 from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
-from PIL import Image
-import base64
-from io import BytesIO
+
 
 
 
@@ -23,14 +21,14 @@ tsne_results_s = data["tsne_results_s"]
 tsne_results_l = data["tsne_results_l"]
 #pca_results_s = data["pca_results_s"]
 #pca_results_l = data["pca_results_l"]
-kmeans_fig_s = data["kmeans_fig_s"]
-kmeans_fig_l = data["kmeans_fig_l"]
+# kmeans_fig_s = data["kmeans_fig_s"]
+# kmeans_fig_l = data["kmeans_fig_l"]
 
-dbscan_fig_s = data["dbscan_fig_s"]
-dbscan_fig_l = data["dbscan_fig_l"]
+# dbscan_fig_s = data["dbscan_fig_s"]
+# dbscan_fig_l = data["dbscan_fig_l"]
 
-dendrogram_image_tsne_s = data["dendrogram_image_tsne_s"]
-dendrogram_image_tsne_l = data["dendrogram_image_tsne_l"]
+# dendrogram_image_tsne_s = data["dendrogram_image_tsne_s"]
+# dendrogram_image_tsne_l = data["dendrogram_image_tsne_l"]
 #dendrogram_image_pca_s = data["dendrogram_image_pca_s"]
 #dendrogram_image_pca_l = data["dendrogram_image_pca_l"]
 
@@ -147,14 +145,8 @@ def register_callbacksAPage(app):
         tsne_results_s1000 = data["tsne_results_s1000"]
         tsne_results_l1000 = data["tsne_results_l1000"]
         
-        buffalo_l, buffalo_s = data["buffalo_l"], data["buffalo_s"]
-        buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
-        tsne_results_s60['id'] = buffalo_s_label['id']
-        tsne_results_l60['id'] = buffalo_l_label['id']
-        tsne_results_s3['id'] = buffalo_s_label['id']
-        tsne_results_l3['id'] = buffalo_l_label['id']
-        tsne_results_s1000['id'] = buffalo_s_label['id']
-        tsne_results_l1000['id'] = buffalo_l_label['id']
+        
+
         
         if selected_perplexity == 3:
             tsne_s = tsne_results_s3.copy()
