@@ -57,10 +57,19 @@ def get_tickals(percentages):
     max_y = max(percentages.values)
 
     # Define tick intervals (you can adjust this as needed)
-    tick_interval = 10  # Example: 10 percent intervals
+    if max_y>50:
+        tick_interval = 10  # Example: 10 percent intervals
+    elif max_y>25:
+        tick_interval = 5
+    elif max_y>10:
+        tick_interval = 2.5
+    elif max_y>2.5:
+        tick_interval = 1
+    else:
+        tick_interval=0.5
 
     # Generate a list of tick values from min_y to max_y with the defined interval
-    return list(range(int(min_y), int(max_y) + tick_interval, tick_interval))
+    return list(range(0, int(max_y) + tick_interval, tick_interval))
 
 
 # Define functions to process and retrieve data

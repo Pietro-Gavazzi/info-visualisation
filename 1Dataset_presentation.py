@@ -25,21 +25,6 @@ inconsistent_percentages = [(len(inconsistent_ids_and_labels[label]) / 1000) * 1
 
 
 
-fig2 = px.bar(
-    x=labels_columns,
-    y=inconsistent_percentages,
-    labels={"x": "Labels", "y": "Percentage of Inconsistent IDs (%)"},
-    title="Percentage of Inconsistent IDs and Labels for Each Label"
-)
-fig2.update_layout(
-    xaxis=dict(title="Labels", tickangle=45),
-    yaxis=dict(title="Percentage of Inconsistent IDs (%)"),
-    margin=dict(l=40, r=40, t=40, b=120),
-    height=600
-)
-fig2.update_traces(marker_color="lightcoral", marker_line_color="black", marker_line_width=1)
-
-
 
 # Initialize Dash app
 app = Dash(__name__)
@@ -138,6 +123,7 @@ fig1.update_traces(
     marker_line_width=1,
 )
 
+
 # Callback to update the figure based on selected labels
 @app.callback(
     dependencies.Output("label-bar-chart", "figure"),
@@ -163,14 +149,14 @@ def update_chart(selected_labels):
         plot_bgcolor="white",
         bargap=0.4,  # Adjust bar width to make them finer
         shapes=[
-            dict(
-                type="line",
-                x0=-0.5,
-                x1=len(filtered_percentages) - 0.5,
-                y0=z,
-                y1=z,
-                line=dict(color="white", width=1)
-            ) for z in  get_tickals(filtered_percentages)
+        dict(
+            type="line",
+            x0=-0.5,
+            x1=len(filtered_percentages) - 0.5,
+            y0=z,
+            y1=z,
+            line=dict(color="white", width=1)
+        ) for z in get_tickals(filtered_percentages)
         ]
 
     )
@@ -180,6 +166,8 @@ def update_chart(selected_labels):
         marker_line_width=1,
     )
     return fig
+
+
 
 # App layout
 label_popularity_block = html.Div([
@@ -197,24 +185,12 @@ label_popularity_block = html.Div([
 
 
 
-observations_block = html.Div([
-    html.H3("> Observations on Label Changes:", style={ "marginBottom": "20px"}),
-    dcc.Markdown(
-        """
-        Some labels may change across different images of the same individual, indicating variability in human labeling.
-        """,
-        style={'fontSize': 14}
-    ),
-    html.H3("Percentage of Inconsistent IDs for Each Label:", style={ "marginBottom": "20px"}),
-    dcc.Graph(figure=fig2),
-], style=global_style)
 
 # App layout
 app.layout = html.Div([
     header_block,
     label_exploration_block,
     label_popularity_block
-    # observations_block
 ])
 
 # Run the app
