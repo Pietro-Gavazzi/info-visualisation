@@ -88,10 +88,10 @@ def get_cosine_similarity(buffalo_l_embed, buffalo_l_label):
 
     return pd.DataFrame(similarities, columns=['Label1', 'Label2', 'Cosine Similarity'])
 
-def get_tsne_projection(buffalo_l_embed, perplexities=[30]):
+def get_tsne_projection(buffalo_l_embed, perplexities=[30],n_components=2,method='barnes_hut'):
     tsne_results = {}
     for perplexity in perplexities:
-        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=0)
+        tsne = TSNE(n_components=n_components, perplexity=perplexity, random_state=0,method=method)
         tsne_proj = tsne.fit_transform(buffalo_l_embed)
         tsne_results[perplexity] = pd.DataFrame(tsne_proj, columns=['x', 'y'])
     return tsne_results
@@ -108,10 +108,13 @@ def get_label_occurrences(buffalo_l_label):
     return label_occurrences
 
 
-def get_pca_projection(buffalo_l_embed):
-    pca = PCA(n_components=2, random_state=0)
+def get_pca_projection(buffalo_l_embed, n_components=2):
+    pca = PCA(n_components, random_state=0)
     pca_results = pca.fit_transform(buffalo_l_embed)
-    return pd.DataFrame(pca_results, columns=['PCA1', 'PCA2'])
+    if n_components == 2:
+        return pd.DataFrame(pca_results, columns=['PCA1', 'PCA2'])
+    else:
+        return pd.DataFrame(pca_results, columns=[f'PCA{i+1}' for i in range(n_components)])
 
 def get_umap_projection(buffalo_l_embed):
     reducer = umap.UMAP(n_components=2, random_state=42)
@@ -121,6 +124,11 @@ def get_umap_projection(buffalo_l_embed):
 def get_kmeans_clustering(tsne_results, n_clusters=3):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     kmeans_labels = kmeans.fit_predict(tsne_results)
+    #print(kmeans_labels)
+    #print(kmeans_labels.shape)
+    #handles K-mean in N dimensions and returns the cluster
+    
+    
     return pd.DataFrame({'x': tsne_results[:, 0], 'y': tsne_results[:, 1], 'Cluster': kmeans_labels.astype(str)})
 
 def get_hierarchical_clustering(buffalo_l_embed, sample_size=500):

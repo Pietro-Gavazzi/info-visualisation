@@ -1,6 +1,7 @@
 import pickle
 from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
+from utils import *
 
 
 # Load precomputed data
@@ -40,6 +41,16 @@ app.layout = html.Div([
             id='id-selector',
             value=None,
             clearable=True
+        )
+    ]),
+    # Dropdown to select a perplexity value for t-SNE
+    html.Div([
+        html.Label("Select Perplexity Value for t-SNE:"),
+        dcc.Dropdown(
+            options=[3,30,60,1000],
+            id='perplexity-selector',
+            value=30,
+            clearable=False
         )
     ]),
 
@@ -132,12 +143,53 @@ app.layout = html.Div([
 @app.callback(
     [Output('projection-plot-s', 'figure'),
      Output('projection-plot-l', 'figure')],
-    Input('id-selector', 'value')
+    [Input('id-selector', 'value'),
+     Input('perplexity-selector', 'value')]
 )
-def update_projection_plots(selected_id):
+def update_projection_plots(selected_id,selected_perplexity):
+    
+    
     # Highlight selected ID
-    tsne_s = tsne_results_s.copy()
-    tsne_l = tsne_results_l.copy()
+    
+    with open("datasets/preprocessed_data.pkl", "rb") as f:
+        data = pickle.load(f)
+
+    # Unpack data
+    
+    
+    tsne_results_s = data["tsne_results_s"]
+    tsne_results_l = data["tsne_results_l"]
+    tsne_results_s60 = data["tsne_results_s60"]
+    tsne_results_l60 = data["tsne_results_l60"]
+    tsne_results_s3 = data["tsne_results_s3"]
+    tsne_results_l3 = data["tsne_results_l3"]
+    tsne_results_s1000 = data["tsne_results_s1000"]
+    tsne_results_l1000 = data["tsne_results_l1000"]
+    
+    
+    buffalo_l, buffalo_s = data["buffalo_l"], data["buffalo_s"]
+    buffalo_s_embed, buffalo_s_label, buffalo_l_embed, buffalo_l_label = preprocess_data(buffalo_s, buffalo_l)
+    tsne_results_s60['id'] = buffalo_s_label['id']
+    tsne_results_l60['id'] = buffalo_l_label['id']
+    tsne_results_s3['id'] = buffalo_s_label['id']
+    tsne_results_l3['id'] = buffalo_l_label['id']
+    tsne_results_s1000['id'] = buffalo_s_label['id']
+    tsne_results_l1000['id'] = buffalo_l_label['id']
+    
+    if selected_perplexity == 3:
+        tsne_s = tsne_results_s3.copy()
+        tsne_l = tsne_results_l3.copy()
+    elif selected_perplexity == 30:
+        tsne_s = tsne_results_s.copy()
+        tsne_l = tsne_results_l.copy()
+    elif selected_perplexity == 60:
+        tsne_s = tsne_results_s60.copy()
+        tsne_l = tsne_results_l60.copy()
+    elif selected_perplexity == 1000:
+        tsne_s = tsne_results_s1000.copy()
+        tsne_l = tsne_results_l1000.copy()
+        
+    
     tsne_s['color'] = tsne_s['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
     tsne_l['color'] = tsne_l['id'].apply(lambda i: 'red' if str(i) == str(selected_id) else 'blue')
 
@@ -145,12 +197,14 @@ def update_projection_plots(selected_id):
     proj_fig_s = px.scatter(
     tsne_s, x='x', y='y', color='color',
     title="Projection of buffalo_s",
-    color_discrete_map={'red': 'red', 'blue': 'blue'}
+    color_discrete_map={'red': 'red', 'blue': 'blue'},
+    hover_data=['id']
     )
     proj_fig_l = px.scatter(
     tsne_l, x='x', y='y', color='color',
     title="Projection of buffalo_l",
-    color_discrete_map={'red': 'red', 'blue': 'blue'}
+    color_discrete_map={'red': 'red', 'blue': 'blue'},
+    hover_data=['id']
     )
 
     return proj_fig_s, proj_fig_l
