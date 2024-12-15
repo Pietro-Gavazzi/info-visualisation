@@ -13,6 +13,8 @@ import umap
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+from PIL import Image
+
 
 
 
@@ -32,6 +34,34 @@ labels_columns = ['5_o_Clock_Shadow', 'Arched_Eyebrows',
        'Wearing_Necktie', 'Young']
 
        
+# Function to convert image to base64 string
+def encode_image(image_path):
+    # Open image using Pillow
+    img = Image.open(image_path)
+
+    # Convert image to a byte stream
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+
+    # Encode the byte stream to base64
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+    return f"data:image/jpeg;base64,{img_str}"
+
+
+
+
+def get_tickals(percentages):
+    # Define the range of y-values for the ticks
+    min_y = min(percentages.values)
+    max_y = max(percentages.values)
+
+    # Define tick intervals (you can adjust this as needed)
+    tick_interval = 10  # Example: 10 percent intervals
+
+    # Generate a list of tick values from min_y to max_y with the defined interval
+    return list(range(int(min_y), int(max_y) + tick_interval, tick_interval))
+
 
 # Define functions to process and retrieve data
 def load_data():
